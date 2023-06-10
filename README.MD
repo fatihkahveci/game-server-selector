@@ -74,11 +74,14 @@ curl --request POST \
 > '
 ```
 
+## Unity Example
+
+https://github.com/fatihkahveci/gs-selector-unity
+
 ## TODOS
 
 - Tests..
 - Metrics support.
-- Unity client.
 - More storage support.
 
 ## LICENSE
