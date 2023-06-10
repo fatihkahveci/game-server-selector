@@ -2,9 +2,15 @@
   Game Server Selector
 </h1>
 
-<p align="center">
-Game Server Selector is an open-source project that provides a comprehensive list of game servers, allowing users to choose the perfect match based on their preferences. With an easy-to-use interface and customizable parameters, finding the ideal server.
-</p>
+
+Game Server Selector is an open-source project that provides a comprehensive list of game servers, allowing users to choose the perfect match based on their preferences. With an easy-to-use interface and customizable parameters, finding 
+
+## Installation
+
+https://github.com/fatihkahveci/game-server-selector/releases download latest release. 
+
+Note: If you need SSL support you need to create .env file and set SSL_KEY and SSL_CERT path.
+
 
 ## Example
 
