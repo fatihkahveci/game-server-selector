@@ -7,9 +7,16 @@ Game Server Selector is an open-source project that provides a comprehensive lis
 
 ## Installation
 
-https://github.com/fatihkahveci/game-server-selector/releases download latest release. 
+https://github.com/fatihkahveci/game-server-selector/releases download latest release. Configure your .env file and simply run the binary.
 
 Note: If you need SSL support you need to create .env file and set SSL_KEY and SSL_CERT path.
+
+## Features
+
+- Game Engine Agnostic
+- Currently supported search types is Match, Equal, Not Equal, Greater Than, Greater Than Or Equal, Less Than, Less Than Or Equal
+- Optional HTTPS support
+- Custom property support
 
 
 ## Example
