@@ -14,6 +14,8 @@ type ConfigService interface {
 	GetSslCertPath() string
 	GetSslKeyPath() string
 	GetServerDirtySeconds() int
+	GetPrometheusPort() string
+	IsPrometheusEnabled() bool
 }
 
 type configService struct{}
@@ -44,6 +46,18 @@ func (c *configService) GetSslKeyPath() string {
 
 func (c *configService) GetServerDirtySeconds() int {
 	return c.getEnvInt("SERVER_DIRTY_SECONDS", 60)
+}
+
+func (c *configService) GetPrometheusPort() string {
+	return ":" + c.getEnv("PROMETHEUS_PORT", "8080")
+}
+
+func (c *configService) IsPrometheusEnabled() bool {
+	isEnabled := c.getEnv("PROMETHEUS_ENABLED", "false")
+	if isEnabled == "true" {
+		return true
+	}
+	return false
 }
 
 func (c *configService) getEnv(key string, fallback string) string {

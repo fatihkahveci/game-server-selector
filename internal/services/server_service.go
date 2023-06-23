@@ -15,12 +15,14 @@ type ServerService interface {
 }
 
 type serverService struct {
-	storage storage.Storage
+	storage       storage.Storage
+	metricService MetricService
 }
 
-func NewServerService(s storage.Storage) ServerService {
+func NewServerService(s storage.Storage, m MetricService) ServerService {
 	return &serverService{
-		storage: s,
+		storage:       s,
+		metricService: m,
 	}
 }
 
@@ -33,6 +35,7 @@ func (s *serverService) UpdateServer(ID string, server models.ServerModel) error
 }
 
 func (s *serverService) DeleteServer(ID string) error {
+	s.metricService.DecServerCount()
 	return s.storage.Delete(ID)
 }
 
@@ -45,5 +48,6 @@ func (s *serverService) SearchServers(search []models.SearchRequest) ([]models.S
 }
 
 func (s *serverService) CreateServer(server models.ServerModel) error {
+	s.metricService.IncServerCount()
 	return s.storage.Add(server)
 }

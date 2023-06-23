@@ -5,6 +5,8 @@ import (
 	"game-server-selector/internal/models"
 	"game-server-selector/internal/services"
 	"game-server-selector/internal/validator"
+	"strconv"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -15,18 +17,28 @@ type FiberServer struct {
 	app           *fiber.App
 	serverDomain  domain.ServerDomain
 	configService services.ConfigService
+	metricService services.MetricService
 }
 
-func NewFiberServer(s domain.ServerDomain, c services.ConfigService) *FiberServer {
+func NewFiberServer(
+	s domain.ServerDomain,
+	c services.ConfigService,
+	m services.MetricService,
+) *FiberServer {
 	app := fiber.New()
-	app.Use(recover.New())
-	app.Use(logger.New())
 
 	return &FiberServer{
 		app:           app,
 		serverDomain:  s,
 		configService: c,
+		metricService: m,
 	}
+}
+
+func (s *FiberServer) InitMiddleware() {
+	s.app.Use(recover.New())
+	s.app.Use(logger.New())
+	s.app.Use(s.metricMiddleware)
 }
 
 func (s *FiberServer) Router() error {
@@ -45,7 +57,9 @@ func (s *FiberServer) Stop() error {
 }
 
 func (s *FiberServer) Start() error {
+	s.InitMiddleware()
 	s.Router()
+
 	port := s.configService.GetHttpPort()
 	certPath := s.configService.GetSslCertPath()
 	keyPath := s.configService.GetSslKeyPath()
@@ -124,4 +138,31 @@ func (s *FiberServer) serverUpdate(ctx *fiber.Ctx) error {
 		"success": true,
 		"server":  server,
 	})
+}
+
+func (s *FiberServer) metricMiddleware(ctx *fiber.Ctx) error {
+	start := time.Now()
+	method := ctx.Route().Method
+	err := ctx.Next()
+	status := fiber.StatusInternalServerError
+
+	if ctx.Route().Path == "metrics" {
+		return ctx.Next()
+	}
+
+	if err != nil {
+		if e, ok := err.(*fiber.Error); ok {
+			status = e.Code
+		}
+	} else {
+		status = ctx.Response().StatusCode()
+	}
+
+	handler := ctx.Route().Path
+	statusCode := strconv.Itoa(status)
+	s.metricService.IncRequestTotal(handler, statusCode, method)
+	elapsed := float64(time.Since(start).Nanoseconds()) / 1e9
+	s.metricService.ObserveRequestDuration(handler, statusCode, method, elapsed)
+
+	return err
 }

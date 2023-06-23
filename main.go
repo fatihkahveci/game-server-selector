@@ -2,19 +2,28 @@ package main
 
 import (
 	"game-server-selector/internal/domain"
-	"game-server-selector/internal/server/http"
+	serverhttp "game-server-selector/internal/server/http"
 	"game-server-selector/internal/services"
 	"game-server-selector/internal/storage"
+
+	"net/http"
 )
 
 func main() {
 	configService := services.NewConfigService()
 	//TODO: after added new storage support we need to check config and init storage
 	inMemoryStorage := storage.NewInMemoryStorage()
-	serverService := services.NewServerService(inMemoryStorage)
+	metricService := services.NewMetricService()
+	metricService.Register()
+	serverService := services.NewServerService(inMemoryStorage, metricService)
 	serverDomain := domain.NewServerDomain(serverService, configService)
 
-	fiber := http.NewFiberServer(serverDomain, configService)
+	if configService.IsPrometheusEnabled() {
+		handler := metricService.Handler()
+		http.Handle("/metrics", handler)
+		go http.ListenAndServe(configService.GetPrometheusPort(), nil)
+	}
+	fiber := serverhttp.NewFiberServer(serverDomain, configService, metricService)
 	err := fiber.Start()
 	if err != nil {
 		panic(err)
