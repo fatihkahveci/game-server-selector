@@ -94,8 +94,15 @@ https://github.com/fatihkahveci/gs-selector-unity
 ## TODOS
 
 - Tests..
-- Metrics support.
 - More storage support.
+
+## Contributing
+
+If you would like to contribute to this project, please follow these steps. For example:
+
+1. Fork this project.
+2. Create a new branch to add a new feature or fix a bug.
+3. Make your changes and submit them as a pull request.
 
 ## LICENSE
 
